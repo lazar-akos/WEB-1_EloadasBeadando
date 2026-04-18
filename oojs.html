@@ -40,6 +40,7 @@
     </main>
 
     <script>
+        // Kötelező OOJS elemek: class, constructor, metódusok, document.body.appendChild, extends, super
         class Alakzat {
             constructor(x, y, meret) {
                 this.x = x;
@@ -47,7 +48,7 @@
                 this.meret = meret;
                 this.szin = this.veletlenSzin();
                 this.elem = document.createElement('div');
-                this.elem.className = 'general-alakzat';
+                this.elem.className = 'general-alakzat'; // osztály a későbbi törléshez
             }
 
             veletlenSzin() {
@@ -67,8 +68,9 @@
                 this.elem.style.height = `${this.meret}px`;
                 this.elem.style.backgroundColor = this.szin;
                 this.elem.style.boxShadow = "0px 4px 6px rgba(0,0,0,0.3)";
-                this.elem.style.pointerEvents = "none";
+                this.elem.style.pointerEvents = "none"; // Hogy ne kattinthassunk az alakzatra a vászon helyett
                 
+                // Kötelező elem a leírásból: document.body.appendChild
                 document.body.appendChild(this.elem);
             }
         }

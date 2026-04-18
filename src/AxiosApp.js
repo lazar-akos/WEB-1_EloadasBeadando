@@ -14,12 +14,12 @@ function AxiosApp() {
 
     const listaz = async () => {
         try {
-            const response = await axios.get('api.php');
+            const response = await window.axios.get('api.php');
             if (Array.isArray(response.data)) {
                 setKutatok(response.data);
             }
         } catch (error) {
-            console.error("Hiba az adatok lekérésekor:", error);
+            console.error("Hiba a betöltéskor:", error);
         }
     };
 
@@ -27,24 +27,34 @@ function AxiosApp() {
         ev.preventDefault();
         const adatok = { 
             nev: ujNev, 
-            szul: ujSzul, 
-            meghal: ujMeghal || null 
+            szul: parseInt(ujSzul) || 0, 
+            meghal: ujMeghal ? parseInt(ujMeghal) : null 
         };
 
         if (szerkesztettId !== null) {
-            await axios.put('api.php', { ...adatok, fkod: szerkesztettId });
+            adatok.action = 'update';
+            adatok.fkod = szerkesztettId;
         } else {
-            await axios.post('api.php', adatok);
+            adatok.action = 'create';
         }
-        
-        formReset();
-        listaz();
+
+        try {
+            await window.axios.post('api.php', adatok);
+            formReset();
+            listaz();
+        } catch (error) {
+            console.error("Hiba a mentéskor:", error);
+        }
     };
 
     const torles = async (id) => {
-        if (confirm('Biztosan törlöd?')) {
-            await axios.delete(`api.php?id=${id}`);
-            listaz();
+        if (confirm('Biztosan törölni szeretné?')) {
+            try {
+                await window.axios.post('api.php', { action: 'delete', fkod: id });
+                listaz();
+            } catch (error) {
+                console.error("Hiba a törléskor:", error);
+            }
         }
     };
 
@@ -63,11 +73,11 @@ function AxiosApp() {
     };
 
     return e('div', null,
-        e('h2', null, 'Axios CRUD Alkalmazás (Adatbázissal)'),
+        e('h2', null, 'Axios CRUD Alkalmazás - Adatbázis kapcsolattal'),
         e('form', { onSubmit: mentes, style: { marginBottom: '20px' } },
             e('input', { type: 'text', placeholder: 'Név', value: ujNev, onChange: ev => setUjNev(ev.target.value), required: true }),
-            e('input', { type: 'number', placeholder: 'Születés', value: ujSzul, onChange: ev => setUjSzul(ev.target.value), min: '0', required: true }),
-            e('input', { type: 'number', placeholder: 'Halálozás', value: ujMeghal, onChange: ev => setUjMeghal(ev.target.value), min: '0' }),
+            e('input', { type: 'number', placeholder: 'Születési év', value: ujSzul, onChange: ev => setUjSzul(ev.target.value), required: true }),
+            e('input', { type: 'number', placeholder: 'Halálozási év', value: ujMeghal, onChange: ev => setUjMeghal(ev.target.value) }),
             e('button', { type: 'submit' }, szerkesztettId !== null ? 'Módosítás' : 'Hozzáadás'),
             szerkesztettId !== null ? e('button', { type: 'button', onClick: formReset, style: { backgroundColor: '#6c757d', marginLeft: '5px' } }, 'Mégse') : null
         ),
@@ -86,7 +96,7 @@ function AxiosApp() {
                     e('td', null, k.szul),
                     e('td', null, k.meghal ? k.meghal : '-'),
                     e('td', null,
-                        e('button', { onClick: () => szerkesztes(k), style: { backgroundColor: '#ffc107', color: 'black', marginRight: '5px' } }, 'Szerkeszt'),
+                        e('button', { onClick: () => szerkesztes(k), style: { backgroundColor: '#ffc107', color: 'black', marginRight: '5px' } }, 'Szerkesztés'),
                         e('button', { onClick: () => torles(k.fkod) }, 'Törlés')
                     )
                 ))

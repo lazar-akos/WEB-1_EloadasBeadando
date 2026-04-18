@@ -1,36 +1,67 @@
-import { kezdoAdatok } from './kutatoadatok.js';
-
-const { useState } = React;
+const { useState, useEffect } = React;
 const e = React.createElement;
 
 function ReactApp() {
-    const [kutatok, setKutatok] = useState(kezdoAdatok);
+    const [kutatok, setKutatok] = useState([]);
     const [ujNev, setUjNev] = useState('');
     const [ujSzul, setUjSzul] = useState('');
     const [ujMeghal, setUjMeghal] = useState('');
     const [szerkesztettId, setSzerkesztettId] = useState(null);
 
-    const hozzaadas = (ev) => {
-        ev.preventDefault();
-        if (szerkesztettId !== null) {
-            setKutatok(kutatok.map(k => k.fkod === szerkesztettId ? 
-                { ...k, nev: ujNev, szul: ujSzul, meghal: ujMeghal } : k));
-            setSzerkesztettId(null);
-        } else {
-            const ujKutato = {
-                fkod: Math.max(...kutatok.map(k => k.fkod), 0) + 1,
-                nev: ujNev,
-                szul: ujSzul,
-                meghal: ujMeghal
-            };
-            setKutatok([...kutatok, ujKutato]);
+    useEffect(() => {
+        listazas();
+    }, []);
+
+    const listazas = async () => {
+        try {
+            const response = await fetch('api.php');
+            const adatok = await response.json();
+            setKutatok(adatok);
+        } catch (error) {
+            console.error('Hiba a listázáskor:', error);
         }
-        formReset();
     };
 
-    const torles = (id) => {
-        if (confirm('Biztosan törlöd?')) {
-            setKutatok(kutatok.filter(k => k.fkod !== id));
+    const mentes = async (ev) => {
+        ev.preventDefault();
+        const adat = {
+            nev: ujNev,
+            szul: parseInt(ujSzul),
+            meghal: ujMeghal ? parseInt(ujMeghal) : null
+        };
+
+        if (szerkesztettId !== null) {
+            adat.action = 'update';
+            adat.fkod = szerkesztettId;
+        } else {
+            adat.action = 'create';
+        }
+
+        try {
+            await fetch('api.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(adat)
+            });
+            formReset();
+            listazas();
+        } catch (error) {
+            console.error('Hiba a mentés során:', error);
+        }
+    };
+
+    const torles = async (id) => {
+        if (confirm('Biztosan törölni szeretné ezt a kutatót?')) {
+            try {
+                await fetch('api.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'delete', fkod: id })
+                });
+                listazas();
+            } catch (error) {
+                console.error('Hiba a törlés során:', error);
+            }
         }
     };
 
@@ -49,8 +80,8 @@ function ReactApp() {
     };
 
     return e('div', null,
-        e('h2', null, 'React CRUD Alkalmazás (Helyi tömbbel)'),
-        e('form', { onSubmit: hozzaadas, style: { marginBottom: '20px' } },
+        e('h2', null, 'React CRUD Alkalmazás - Adatbázis kapcsolattal'),
+        e('form', { onSubmit: mentes, style: { marginBottom: '20px' } },
             e('input', { type: 'text', placeholder: 'Név', value: ujNev, onChange: ev => setUjNev(ev.target.value), required: true }),
             e('input', { type: 'number', placeholder: 'Születés', value: ujSzul, onChange: ev => setUjSzul(ev.target.value), min: '0', required: true }),
             e('input', { type: 'number', placeholder: 'Halálozás', value: ujMeghal, onChange: ev => setUjMeghal(ev.target.value), min: '0' }),

@@ -1,31 +1,42 @@
-let kutatokTomb = [
-    { fkod: 40, nev: "Kühne Ede", szul: 1839, meghal: 1903 },
-    { fkod: 14, nev: "Déri Miksa", szul: 1854, meghal: 1938 },
-    { fkod: 16, nev: "Fejes Jenő", szul: 1877, meghal: 1952 },
-    { fkod: 56, nev: "Reich Ernő", szul: 1887, meghal: 1965 },
-    { fkod: 10, nev: "Bródy Imre", szul: 1891, meghal: 1944 }
-];
+let kutatokTomb = [];
 
-function listaMegjelenites() {
+async function listaMegjelenites() {
     document.getElementById('js-lista-szekcio').style.display = 'block';
     document.getElementById('js-urlap-szekcio').style.display = 'none';
     
     const tablaTest = document.getElementById('js-kutatok-test');
-    tablaTest.innerHTML = '';
+    tablaTest.innerHTML = '<tr><td colspan="4">Adatok betöltése...</td></tr>';
 
-    kutatokTomb.forEach(k => {
-        const sor = document.createElement('tr');
-        sor.innerHTML = `
-            <td>${k.nev}</td>
-            <td>${k.szul}</td>
-            <td>${k.meghal ? k.meghal : '-'}</td>
-            <td>
-                <button type="button" onclick="szerkesztes(${k.fkod})" style="background-color: #ffc107; color: black; margin-right: 5px;">Szerkesztés</button>
-                <button type="button" onclick="torles(${k.fkod})">Törlés</button>
-            </td>
-        `;
-        tablaTest.appendChild(sor);
-    });
+    try {
+        const response = await fetch('api.php');
+        const text = await response.text();
+        
+        try {
+            kutatokTomb = JSON.parse(text);
+        } catch (e) {
+            console.error("Válasz hiba:", text);
+            throw new Error("Érvénytelen válasz");
+        }
+
+        if (kutatokTomb.error) throw new Error(kutatokTomb.error);
+
+        tablaTest.innerHTML = '';
+        kutatokTomb.forEach(k => {
+            const sor = document.createElement('tr');
+            sor.innerHTML = `
+                <td>${k.nev}</td>
+                <td>${k.szul}</td>
+                <td>${k.meghal ? k.meghal : '-'}</td>
+                <td>
+                    <button type="button" onclick="szerkesztes(${k.fkod})" style="background-color: #ffc107; color: black; margin-right: 5px;">Szerkesztés</button>
+                    <button type="button" onclick="torles(${k.fkod})">Törlés</button>
+                </td>
+            `;
+            tablaTest.appendChild(sor);
+        });
+    } catch (error) {
+        tablaTest.innerHTML = '<tr><td colspan="4">Hiba történt az adatok betöltésekor.</td></tr>';
+    }
 }
 
 function urlapMegjelenites(szerkesztesMod = false) {
@@ -40,45 +51,70 @@ function urlapMegjelenites(szerkesztesMod = false) {
     }
 }
 
-function uralpMentes(e) {
+async function uralpMentes(e) {
     e.preventDefault();
-    
     const id = document.getElementById('js-id').value;
-    const nev = document.getElementById('js-nev').value;
-    const szul = parseInt(document.getElementById('js-szul').value);
-    const meghal = document.getElementById('js-meghal').value ? parseInt(document.getElementById('js-meghal').value) : null;
+    const adat = {
+        nev: document.getElementById('js-nev').value,
+        szul: parseInt(document.getElementById('js-szul').value),
+        meghal: document.getElementById('js-meghal').value ? parseInt(document.getElementById('js-meghal').value) : null
+    };
 
     if (id) {
-        const index = kutatokTomb.findIndex(k => k.fkod == id);
-        if (index !== -1) {
-            kutatokTomb[index] = { fkod: parseInt(id), nev, szul, meghal };
-        }
+        adat.action = 'update';
+        adat.fkod = parseInt(id);
     } else {
-        const ujId = kutatokTomb.length > 0 ? Math.max(...kutatokTomb.map(k => k.fkod)) + 1 : 1;
-        kutatokTomb.push({ fkod: ujId, nev, szul, meghal });
+        adat.action = 'create';
     }
 
-    listaMegjelenites();
+    try {
+        const response = await fetch('api.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(adat)
+        });
+        
+        const eredmeny = await response.json();
+        if (eredmeny.error) {
+            alert("Hiba: " + eredmeny.error);
+        }
+        
+        listaMegjelenites();
+    } catch (error) {
+        console.error('Hiba a mentés során:', error);
+    }
 }
 
-function torles(id) {
-    if (confirm('Biztosan törölni szeretnéd ezt a kutatót?')) {
-        kutatokTomb = kutatokTomb.filter(k => k.fkod !== id);
-        listaMegjelenites();
+async function torles(id) {
+    if (confirm('Biztosan törölni szeretnéd?')) {
+        try {
+            const response = await fetch('api.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'delete', fkod: parseInt(id) })
+            });
+            
+            const eredmeny = await response.json();
+            if (eredmeny.error) {
+                alert("Hiba: " + eredmeny.error);
+            }
+
+            listaMegjelenites();
+        } catch (error) {
+            console.error('Hiba a törlés során:', error);
+        }
     }
 }
 
 function szerkesztes(id) {
-    const kutato = kutatokTomb.find(k => k.fkod === id);
+    const kutato = kutatokTomb.find(k => k.fkod == id);
     if (kutato) {
         document.getElementById('js-id').value = kutato.fkod;
         document.getElementById('js-nev').value = kutato.nev;
         document.getElementById('js-szul').value = kutato.szul;
         document.getElementById('js-meghal').value = kutato.meghal || '';
-        
-        document.getElementById('urlap-cim').innerText = 'Kutató adatainak módosítása';
+        document.getElementById('urlap-cim').innerText = 'Kutató módosítása';
         document.getElementById('js-mentes-btn').innerText = 'Módosítás';
-        
         urlapMegjelenites(true);
     }
 }

@@ -23,14 +23,18 @@
 
     <main id="axios-root"></main>
 
-    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script type="module" src="src/main_axios.js"></script>
-
     <footer>
         <p>Készítette: Lázár Ákos (EUVG2G) és Berta Karolina Ildikó (FBAZTW)</p>
     </footer>
 
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    
+    <script type="module">
+        import AxiosApp from './src/AxiosApp.js';
+        const root = ReactDOM.createRoot(document.getElementById('axios-root'));
+        root.render(React.createElement(AxiosApp));
+    </script>
 </body>
 </html>

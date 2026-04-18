@@ -1,35 +1,56 @@
 <?php
-header('Content-Type: application/json');
 require_once 'db_config.php';
+header("Content-Type: application/json; charset=UTF-8");
 
 $method = $_SERVER['REQUEST_METHOD'];
 
-switch($method) {
-    case 'GET':
-        $stmt = $conn->query("SELECT fkod, nev, szul, meghal FROM kutato ORDER BY nev");
-        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        echo json_encode($result);
-        break;
+if ($method === 'GET') {
+    $stmt = $conn->query("SELECT fkod, nev, szul, meghal FROM kutato ORDER BY nev");
+    echo json_encode($stmt->fetchAll());
+    exit;
+}
 
-    case 'POST':
-        $adat = json_decode(file_get_contents('php://input'), true);
-        $stmt = $conn->prepare("INSERT INTO kutato (nev, szul, meghal) VALUES (?, ?, ?)");
-        $stmt->execute([$adat['nev'], $adat['szul'], $adat['meghal']]);
-        echo json_encode(['status' => 'success']);
-        break;
+if ($method === 'POST') {
+    $data = json_decode(file_get_contents("php://input"), true);
+    $action = isset($data['action']) ? $data['action'] : '';
 
-    case 'PUT':
-        $adat = json_decode(file_get_contents('php://input'), true);
-        $stmt = $conn->prepare("UPDATE kutato SET nev=?, szul=?, meghal=? WHERE fkod=?");
-        $stmt->execute([$adat['nev'], $adat['szul'], $adat['meghal'], $adat['fkod']]);
-        echo json_encode(['status' => 'updated']);
-        break;
+    try {
+        if ($action === 'delete') {
+            $stmt = $conn->prepare("DELETE FROM kutato WHERE fkod = ?");
+            $stmt->execute([$data['fkod']]);
+            echo json_encode(["message" => "Sikeres törlés"]);
+            exit;
+        }
 
-    case 'DELETE':
-        $id = $_GET['id'];
-        $stmt = $conn->prepare("DELETE FROM kutato WHERE fkod = ?");
-        $stmt->execute([$id]);
-        echo json_encode(['status' => 'deleted']);
-        break;
+        if ($action === 'update') {
+            $stmt = $conn->prepare("UPDATE kutato SET nev=?, szul=?, meghal=? WHERE fkod=?");
+            $stmt->execute([
+                $data['nev'], 
+                (int)$data['szul'], 
+                !empty($data['meghal']) ? (int)$data['meghal'] : null, 
+                (int)$data['fkod']
+            ]);
+            echo json_encode(["message" => "Sikeres frissítés"]);
+            exit;
+        }
+
+        if ($action === 'create') {
+            $maxIdRes = $conn->query("SELECT MAX(fkod) as maxid FROM kutato");
+            $nextId = $maxIdRes->fetch()['maxid'] + 1;
+            
+            $stmt = $conn->prepare("INSERT INTO kutato (fkod, nev, szul, meghal) VALUES (?, ?, ?, ?)");
+            $stmt->execute([
+                $nextId, 
+                $data['nev'], 
+                (int)$data['szul'], 
+                !empty($data['meghal']) ? (int)$data['meghal'] : null
+            ]);
+            echo json_encode(["message" => "Sikeres hozzáadás"]);
+            exit;
+        }
+    } catch (PDOException $e) {
+        echo json_encode(["error" => $e->getMessage()]);
+        exit;
+    }
 }
 ?>
