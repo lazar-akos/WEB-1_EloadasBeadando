@@ -7,6 +7,7 @@
     --gold: #d35400;
     --text: #333333;
     --board: #ffffff; 
+<<<<<<< HEAD
 }
 
 html, body {
@@ -24,8 +25,21 @@ body {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+=======
+>>>>>>> 318ba7639bd71bebbe5897ddc99b158ce5b12fea
 }
 
+body {
+    font-family: 'Source Sans Pro', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: var(--parchment);
+    color: var(--text);
+    background-image: radial-gradient(#d5d1c3 1px, transparent 1px);
+    background-size: 20px 20px;
+    
+    min-height: 100vh;
+}
 header {
     background: var(--ink);
     color: var(--parchment);
@@ -90,10 +104,15 @@ main {
     background: var(--board);
     border-radius: 4px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+<<<<<<< HEAD
     border: 1px solid #e0dcd3;
     flex: 1;
     width: 100%;
     box-sizing: border-box;
+=======
+    min-height: 50vh;
+    border: 1px solid #e0dcd3;
+>>>>>>> 318ba7639bd71bebbe5897ddc99b158ce5b12fea
 }
 
 .bemutatkozas {
@@ -109,6 +128,7 @@ main {
     gap: 15px;
     justify-content: center;
 }
+
 
 table {
     width: 100%;
@@ -136,6 +156,7 @@ tr:hover {
     background-color: #fcfbf9;
 }
 
+
 form {
     background: #faf8f5;
     padding: 25px;
@@ -156,6 +177,15 @@ input {
     font-family: 'Source Sans Pro', sans-serif;
     font-size: 15px;
     background: var(--board);
+<<<<<<< HEAD
+}
+
+input:focus {
+    outline: none;
+    border-color: var(--ink);
+    box-shadow: 0 0 5px rgba(44, 62, 80, 0.2);
+=======
+>>>>>>> 318ba7639bd71bebbe5897ddc99b158ce5b12fea
 }
 
 input:focus {
@@ -163,6 +193,7 @@ input:focus {
     border-color: var(--ink);
     box-shadow: 0 0 5px rgba(44, 62, 80, 0.2);
 }
+
 
 button {
     padding: 10px 20px;
@@ -235,6 +266,10 @@ footer {
     border-top: 4px solid var(--copper);
     font-family: 'Playfair Display', serif;
     font-style: italic;
+<<<<<<< HEAD
+=======
+    
+>>>>>>> 318ba7639bd71bebbe5897ddc99b158ce5b12fea
     margin-top: auto;
     width: 100%;
     box-sizing: border-box;
