@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <title>JavaScript CRUD - Helyi tömbbel</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Web programozás-1 Előadás Házi feladat</h1>
+        <nav>
+            <ul>
+                <li><a href="index.html">Főoldal</a></li>
+                <li><a href="javascript.html">JavaScript menü</a></li>
+                <li><a href="react.html">React menü</a></li>
+                <li><a href="spa.html">SPA menü</a></li>
+                <li><a href="fetchapi.html">Fetch API menü</a></li>
+                <li><a href="axios.html">Axios menü</a></li>
+                <li><a href="oojs.html">OOJS menü</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main id="tartalom">
+        <div class="al-menu">
+            <button type="button" onclick="listaMegjelenites()">Kutatók listája</button>
+            <button type="button" onclick="urlapMegjelenites()">Új kutató felvétele</button>
+        </div>
+
+        <section id="js-lista-szekcio">
+            <table id="js-kutatok-tabla">
+                <thead>
+                    <tr>
+                        <th>Név</th>
+                        <th>Születés</th>
+                        <th>Halálozás</th>
+                        <th>Műveletek</th>
+                    </tr>
+                </thead>
+                <tbody id="js-kutatok-test"></tbody>
+            </table>
+        </section>
+
+        <section id="js-urlap-szekcio" style="display:none;">
+            <h2 id="urlap-cim">Új kutató hozzáadása</h2>
+            <form id="js-kutato-form">
+                <input type="hidden" id="js-id">
+                <input type="text" id="js-nev" placeholder="Név" required><br>
+                <input type="number" id="js-szul" placeholder="Születési év" min="0" required><br>
+                <input type="number" id="js-meghal" placeholder="Halálozási év (opcionális)" min="0"><br>
+                <button type="submit" id="js-mentes-btn">Mentés</button>
+                <button type="button" onclick="listaMegjelenites()" style="background-color: #6c757d;">Mégse</button>
+            </form>
+        </section>
+    </main>
+    <footer>
+        <p>Készítette: Lázár Ákos (EUVG2G) és Berta Karolina Ildikó (FBAZTW)</p>
+    </footer>
+
+    <script src="javascript_crud.js"></script>
+</body>
+</html>
