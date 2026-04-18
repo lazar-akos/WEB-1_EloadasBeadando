@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <title>Fetch API CRUD</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Web programozás-1 Előadás Házi feladat</h1>
+        <nav>
+            <ul>
+                <li><a href="index.html">Főoldal</a></li>
+                <li><a href="javascript.html">JavaScript menü</a></li>
+                <li><a href="react.html">React menü</a></li>
+                <li><a href="spa.html">SPA menü</a></li>
+                <li><a href="fetchapi.html">Fetch API menü</a></li>
+                <li><a href="axios.html">Axios menü</a></li>
+                <li><a href="oojs.html">OOJS menü</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main id="tartalom">
+        <div class="al-menu">
+            <button onclick="listaKutatok()">Kutatók listája</button>
+            <button onclick="mutatUrlap()">Új kutató felvétele</button>
+        </div>
+
+        <section id="lista-szekcio">
+            <table id="kutatok-tabla">
+                <thead>
+                    <tr>
+                        <th>Név</th>
+                        <th>Születés</th>
+                        <th>Halálozás</th>
+                        <th>Műveletek</th>
+                    </tr>
+                </thead>
+                <tbody id="kutatok-test"></tbody>
+            </table>
+        </section>
+
+        <section id="urlap-szekcio" style="display:none;">
+            <h2 id="urlap-cim">Új kutató hozzáadása</h2>
+            <form id="kutato-form">
+                <input type="hidden" id="fkod">
+                <input type="text" id="nev" placeholder="Név" required><br>
+                <input type="number" id="szul" placeholder="Születési év" min="0" required><br>
+                <input type="number" id="meghal" placeholder="Halálozási év (opcionális)" min="0"><br>
+                <button type="submit" id="mentes-btn">Mentés</button>
+                <button type="button" onclick="listaKutatok()" style="background-color: #6c757d;">Mégse</button>
+            </form>
+        </section>
+    </main>
+
+    <footer>
+        <p>Készítette: Lázár Ákos (EUVG2G) és Berta Karolina Ildikó (FBAZTW)</p>
+    </footer>
+
+    <script src="fetch_crud.js"></script>
+</body>
+</html>
